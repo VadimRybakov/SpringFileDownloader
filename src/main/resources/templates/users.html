@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Users</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://kit.fontawesome.com/90f5d1d736.js" crossorigin="anonymous"></script>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+</head>
+<body>
+<div class="container">
+    <div class="menu">
+        <div class="menu_link" >
+            <a th:href="@{/}" class="menu_link_title">Главная</a>
+        </div>
+        <div sec:authorize="isAnonymous()" class="menu_link">
+            <a th:href="@{/login}" class="menu_link_title">Войти</a>
+        </div>
+        <div sec:authorize="hasRole('ADMIN')" class="menu_link">
+            <a th:href="@{/users}" class="menu_link_title">Пользователи и роли</a>
+        </div>
+        <div sec:authorize="isAuthenticated()">
+            <form th:action="@{/logout}" method="POST">
+                <button id="navLogout" class="btn_logout" type="submit">Выйти</button>
+            </form>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Логин</th>
+            <th scope="col">Email</th>
+            <th scope="col">Роли</th>
+            <th scope="col">Редактировать</th>
+            <th scope="col">Удалить</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${users}">
+            <td th:text="${u.login}"></td>
+            <td th:text="${u.email}"></td>
+            <td class="role_info" th:each="r : ${u.roles}" th:text="${r.name}"></td>
+            <td class="edit_info">
+                <a th:href="@{'/users?login=' + ${u.login}}">
+                    <i class="fas fa-edit"></i>
+                </a>
+            </td>
+            <td class="edit_info">
+                <a th:href="@{'/users/delete/'+ ${u.id}}">
+                    <i class="fas fa-eraser"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="table">
+        <form th:each="u : ${users}" th:if="${userDto!=null && u.login == userDto.login}"
+              th:action="@{/users}" th:object="${userDto}" method="post">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">Логин</th>
+                <th scope="col">Установить роль</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <input th:field="*{login}" type="text" required minlength="5" maxlength="50">
+                </td>
+                <td>
+                    <div class="role_info">
+                        <div th:each="r : ${roles}">
+                            <input type="checkbox" th:field="*{roles}" th:value="${r.id}"/>
+                            <label th:for="${#ids.prev('roles')}" th:text="${r.name}"></label>
+                        </div>
+                        <p th:if="${error != null}" th:text="${error}"></p>
+                    </div>
+                </td>
+                <td><button type="submit" class="btn_save">Сохранить</button></td>
+            </tr>
+            </tbody>
+        </form>
+    </table>
+</div>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>
